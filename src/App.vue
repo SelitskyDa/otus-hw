@@ -1,30 +1,40 @@
 <script setup>
-import HelloWorld from './components/HelloWorld.vue'
+import Products from './components/Products.vue'
+import { ref } from 'vue'
+import axios from 'axios'
+
+const isLoading = ref(false)
+const message = ref(null)
+const responseData = ref(null)
+
+const fetchData = async () => {
+  isLoading.value = true
+
+  try {
+    const response = await axios.get('https://fakestoreapi.com/products')
+    responseData.value = response.data
+  } catch (error) {
+    message.value = 'Что то пошло не так'
+  } finally {
+    isLoading.value = false
+  }
+}
+const deleteData = () => {
+  responseData.value = null
+}
 </script>
 
 <template>
   <div>
-    <a href="https://vitejs.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+    <button @click="fetchData" v-if="!responseData">Загрузить данные</button>
+    <p v-if="isLoading">Загрузка...</p>
+    <p v-if="message">Ошибка: {{ message }}</p>
+    <div v-if="!isLoading && responseData">
+      <p>Данные успешно загружены:</p>
+    </div>
   </div>
-  <HelloWorld msg="Vite + Vue" />
+  <Products msg="Товары" :products="responseData" @deleteEvent="deleteData"/>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
 </style>
