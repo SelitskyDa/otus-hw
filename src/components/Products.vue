@@ -1,43 +1,75 @@
 <script setup>
-import { defineEmits } from 'vue'
+import { computed } from 'vue'
 
-const emits = defineEmits(['deleteEvent'])
+const emits = defineEmits(['deleteEvent', 'buyProduct'])
 
-defineProps({
+const props = defineProps({
   msg: String,
-  products: Object
+  products: Object,
+  search: [String, Number]
 })
 const deleteAllData = () => {
   emits('deleteEvent')
 }
+const buyProduct = (i) => {
+  emits('buyProduct', i)
+}
+const filteredProducts = computed(() => {
+  if (props.search === '' || props.search === null) {
+    return props.products
+  }
+
+  const isNumber = !isNaN(parseFloat(props.search)) && isFinite(props.search)
+
+  if (isNumber) {
+    const searchNumber = parseFloat(props.search)
+    return props.products.filter(product =>
+        product.price === searchNumber
+    )
+  } else {
+    const searchString = props.search.toLowerCase()
+    return props.products.filter(product =>
+        product.title.toLowerCase().includes(searchString)
+    )
+  }
+})
 </script>
 
 <template>
-  <h1>{{ msg }}</h1>
-  <div class="container">
-    <button @click="deleteAllData" v-if="products">удалить все товары</button>
-    <div v-for="i in products" class="block">
-      <p>{{i.id}}</p>
-      <p class="title">{{i.title}}</p>
-      <p class="price">{{i.price}}</p>
+  <v-btn @click="deleteAllData" v-if="products">удалить все товары</v-btn>
+  <div class="block">
+    <div v-for="(i, index) in filteredProducts" class="card" :key="index" >
+      <img v-if="i.image" class="image" :src="`${i.image}`">
+      <img v-else class="image" src="@/static/html_placeholder_01.jpg">
+      <div class="about">
+        <p class="title">{{i.title}}</p>
+        <p class="price">{{i.price}}$</p>
+      </div>
+      <p style="width: 100%; text-align: right; cursor: pointer; margin-top: 1rem" @click="buyProduct(i)">заказать</p>
     </div>
   </div>
 
 </template>
 
 <style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-}
 .block {
   display: flex;
   gap: 10px;
-  align-items: center;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 .title {
   max-width: 250px;
-  text-align: center;
   width: 100%;
+}
+.card {
+}
+.image {
+  width: 320px;
+  height: 320px;
+}
+.about {
+  display: flex;
+  gap: 20px;
 }
 </style>

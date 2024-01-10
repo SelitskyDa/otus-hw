@@ -9,8 +9,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@mdi/font": "7.0.96",
     "axios": "^1.6.1",
-    "vue": "^3.3.4"
+    "sass": "^1.69.7",
+    "vee-validate": "^4.12.4",
+    "vue": "^3.3.4",
+    "vuetify": "^3.4.7",
+    "yup": "^1.3.3"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^4.2.3",
