@@ -15,14 +15,15 @@ const buyProduct = (i) => {
   emits('buyProduct', i)
 }
 const filteredProducts = computed(() => {
+  const parseSearch = parseFloat(props.search)
   if (props.search === '' || props.search === null) {
     return props.products
   }
 
-  const isNumber = !isNaN(parseFloat(props.search)) && isFinite(props.search)
+  const isNumber = !isNaN(parseSearch) && isFinite(props.search)
 
   if (isNumber) {
-    const searchNumber = parseFloat(props.search)
+    const searchNumber = parseSearch
     return props.products.filter(product =>
         product.price === searchNumber
     )

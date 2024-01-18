@@ -22,8 +22,7 @@
 </template>
 
 <script setup>
-import { defineEmits, ref} from "vue"
-
+import { defineEmits, ref} from 'vue'
 import { Form, Field } from 'vee-validate'
 import * as Yup from 'yup'
 
@@ -32,16 +31,26 @@ const emits = defineEmits(['add'])
 const form = ref({})
 
 const success = () => {
-  emits('add', form)
+  schema.validate(form.value)
+      .then(() => {
+        emits('add', form)
+      })
+      .catch((validationError) => {
+        alert(validationError.errors)
+      })
 }
 
 const schema = Yup.object().shape({
   title: Yup.string()
       .required('обязательное поле название')
-      .matches(/^[A-Za-z0-9\s]{1,50}$/, 'Название неправильного формата'),
-  price: Yup.string()
+      .min(5, 'минимум 5 символов')
+      .max(50, 'максимум 50 символов')
+      .matches(/^[A-Za-z0-9\s]{3,50}$/, 'Название неправильного формата'),
+  price: Yup.number()
       .required('обязательное поле цена')
-      .matches(/^\d+$/, 'Цена указана не в том формате'),
+      .min(1, 'минимум 1 символ')
+      .typeError('Цена должна быть числом')
+      .positive('Цена должна быть положительным числом')
 });
 
 

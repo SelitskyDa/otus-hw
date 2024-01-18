@@ -3,10 +3,10 @@ import { ref } from 'vue'
 
 import Products from './components/Products.vue'
 import Header from './components/Header.vue'
+import BuyForm from './components/BuyForm.vue'
+import AddProduct from './components/AddProduct.vue'
 
 import { fetchProducts } from './services/fetch'
-import BuyForm from './components/BuyForm.vue'
-import AddProduct from "./components/AddProduct.vue";
 
 const isLoading = ref(false)
 const message = ref(null)
@@ -42,7 +42,6 @@ const addData = () => {
   addMode.value = true
 }
 const add = (form) => {
-  console.log(form.value)
   responseData.value.unshift(form.value)
   addMode.value = false
 }
