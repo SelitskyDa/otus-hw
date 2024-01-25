@@ -16,6 +16,7 @@
       <div class="buttons">
         <v-btn @click="success()">Добавить</v-btn>
         <v-btn type="reset">Сбросить</v-btn>
+        <v-btn @click="cancel">Отмена</v-btn>
       </div>
     </Form>
   </div>
@@ -26,7 +27,7 @@ import { defineEmits, ref} from 'vue'
 import { Form, Field } from 'vee-validate'
 import * as Yup from 'yup'
 
-const emits = defineEmits(['add'])
+const emits = defineEmits(['add', 'cancel'])
 
 const form = ref({})
 
@@ -38,6 +39,10 @@ const success = () => {
       .catch((validationError) => {
         alert(validationError.errors)
       })
+}
+
+const cancel = () => {
+  emits('cancel')
 }
 
 const schema = Yup.object().shape({

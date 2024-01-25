@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <Form @submit="onSubmit" :validation-schema="schema" v-slot="{ errors }" class="form">
 
         <div class="row">
@@ -10,12 +10,12 @@
         <div class="row">
           <label>Желаемая дата доставки<i>*</i> </label>
           <Field v-model="form.date" name="date" type="date" :class="{ 'is-invalid': errors.date }" />
-          <div class="err">{{errors.dob}}</div>
+          <div class="err">{{errors.date}}</div>
         </div>
 
         <div class="row">
           <label>Город<i>*</i> </label>
-          <Field v-model="form.city" name="city" as="select" :class="{ 'is-invalid': errors.phone }" >
+          <Field v-model="form.city" name="city" as="select" :class="{ 'is-invalid': errors.city }" >
             <option value="Москва">Москва</option>
             <option value="Магадан">Магадан</option>
             <option value="Мурманск">Мурманск</option>
@@ -42,22 +42,26 @@
 </template>
 
 <script setup>
-import {defineEmits, ref} from "vue";
-import api from '@/services/api'
+import {ref} from "vue"
 
 import { Form, Field } from 'vee-validate'
 import * as Yup from 'yup'
 
-const emits = defineEmits(['success'])
+import {useRouter} from 'vue-router'
+const router = useRouter()
+
+import { buyProduct } from '@/services/fetch'
 
 const form = ref({})
 
 const success = () => {
-  emits('success')
+  localStorage.setItem('cart', JSON.stringify([]))
+  alert('Спасибо за покупку')
+  router.push({name: 'main'})
 }
 
-function onSubmit(values) {
-  api.post('https://httpbin.org/post', form)
+async function onSubmit(values) {
+  await buyProduct(form)
     .then(() => {
       success()
     })

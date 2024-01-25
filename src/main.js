@@ -10,7 +10,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
 import api from './services/api'
-
+import router from './router'
 
 const vuetify = createVuetify({
     components,
@@ -21,4 +21,4 @@ const app = createApp(App)
 
 app.config.globalProperties.$axios = { ...api }
 
-app.use(vuetify).mount('#app')
+app.use(router).use(vuetify).mount('#app')

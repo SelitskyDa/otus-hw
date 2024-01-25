@@ -1,7 +1,7 @@
 <script setup>
 import { computed } from 'vue'
 
-const emits = defineEmits(['deleteEvent', 'buyProduct'])
+const emits = defineEmits(['deleteEvent', 'addProductToCart'])
 
 const props = defineProps({
   msg: String,
@@ -11,8 +11,8 @@ const props = defineProps({
 const deleteAllData = () => {
   emits('deleteEvent')
 }
-const buyProduct = (i) => {
-  emits('buyProduct', i)
+const addProductToCart = (i) => {
+  emits('addProductToCart', i)
 }
 const filteredProducts = computed(() => {
   const parseSearch = parseFloat(props.search)
@@ -39,20 +39,22 @@ const filteredProducts = computed(() => {
 <template>
   <v-btn @click="deleteAllData" v-if="products">удалить все товары</v-btn>
   <div class="block">
-    <div v-for="(i, index) in filteredProducts" class="card" :key="index" >
-      <img v-if="i.image" class="image" :src="`${i.image}`">
-      <img v-else class="image" src="@/static/html_placeholder_01.jpg">
+    <div v-for="(i, index) in filteredProducts" class="card" :key="index">
+      <div @click="$router.push({ name: 'product', params: {id: i.id} })">
+        <img v-if="i.image" class="image" :src="`${i.image}`">
+        <img v-else class="image" src="@/static/html_placeholder_01.jpg">
+      </div>
       <div class="about">
         <p class="title">{{i.title}}</p>
         <p class="price">{{i.price}}$</p>
       </div>
-      <p style="width: 100%; text-align: right; cursor: pointer; margin-top: 1rem" @click="buyProduct(i)">заказать</p>
+      <p style="width: 100%; text-align: right; cursor: pointer; margin-top: 1rem" @click="addProductToCart(i)">добавить в корзину</p>
     </div>
   </div>
 
 </template>
 
-<style scoped>
+<style scoped lang="scss">
 .block {
   display: flex;
   gap: 10px;
@@ -64,6 +66,10 @@ const filteredProducts = computed(() => {
   width: 100%;
 }
 .card {
+  cursor: pointer;
+  &:hover {
+    box-shadow: 3px 3px 3px 4px rgba(0, 0, 0, 0.2);
+   }
 }
 .image {
   width: 320px;
