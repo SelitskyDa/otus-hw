@@ -1,10 +1,13 @@
 <script setup>
 import {reactive, ref} from "vue";
+import {useCartStore} from "@/store/cart"
 
 const props = defineProps({
   product: Object
 })
-const itemsInCart = reactive([])
+
+const cartStore = useCartStore()
+
 
 const snackbar = ref({
   show: false,
@@ -17,17 +20,11 @@ function showSnackbar(message) {
 }
 
 const addProductToCart = product => {
-  const newCartItem = {
-    product: product,
-    quantity: 1
+  if (!product?.id) {
+    alert('извините, этого товара нет в наличии(нету id)')
+    return
   }
-  const foundItemsInCart = itemsInCart.find(p => p.product.id === product.id)
-  if (foundItemsInCart) {
-    foundItemsInCart.quantity += 1
-  } else {
-    itemsInCart.push(newCartItem)
-  }
-  localStorage.setItem('cart', JSON.stringify(itemsInCart))
+  cartStore.addToCart(product, 1)
   showSnackbar(`Товар ${product.title} успешно добавлен в корзину`)
 }
 

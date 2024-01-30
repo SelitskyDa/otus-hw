@@ -1,9 +1,14 @@
 <script setup>
 import {ref, defineEmits} from 'vue'
-import { getUserName, logout } from '@/services/auth'
+import { logout } from '@/services/auth'
+import {useCartStore} from "@/store/cart"
+import {useUserStore} from "@/store/user"
 
 const emits = defineEmits(['searchEvent'])
 import {useRoute, useRouter} from 'vue-router'
+
+const cartStore = useCartStore()
+const userStore = useUserStore()
 
 const route = useRoute()
 const router = useRouter()
@@ -35,8 +40,8 @@ function logoutUser () {
         @click:clear="filter"
     ></v-text-field>
     <div style="display: flex; gap: 15px">
-      <p><v-icon color="black">mdi-linux</v-icon>{{getUserName()}}</p>
-      <router-link :to="{ name: 'cart' }">Корзина</router-link>
+      <p v-if="userStore.user?.login"><v-icon color="black">mdi-linux</v-icon>{{userStore.user.login}}</p>
+      <router-link :to="{ name: 'cart' }">Корзина({{cartStore.totalCount}})</router-link>
       <p @click="logoutUser"><v-icon color="black">mdi-exit-to-app</v-icon>выйти</p>
     </div>
   </header>

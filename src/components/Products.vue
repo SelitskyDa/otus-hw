@@ -5,7 +5,7 @@ const emits = defineEmits(['deleteEvent', 'addProductToCart'])
 
 const props = defineProps({
   msg: String,
-  products: Object,
+  products: Array,
   search: [String, Number]
 })
 const deleteAllData = () => {
@@ -37,7 +37,7 @@ const filteredProducts = computed(() => {
 </script>
 
 <template>
-  <v-btn @click="deleteAllData" v-if="products">удалить все товары</v-btn>
+  <v-btn @click="deleteAllData" v-if="props.products.length > 0">удалить все товары</v-btn>
   <div class="block">
     <div v-for="(i, index) in filteredProducts" class="card" :key="index">
       <div @click="$router.push({ name: 'product', params: {id: i.id} })">

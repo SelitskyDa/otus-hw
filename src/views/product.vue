@@ -3,39 +3,26 @@ import Product from '@/components/Product.vue'
 
 import {onMounted, ref} from "vue"
 
-import { fetchProduct } from '@/services/fetch'
+import {useAppStore} from "@/store/app"
+import {useProductsStore} from "@/store/products"
 
-const isLoading = ref(false)
-const message = ref(null)
-const responseData = ref(null)
+const appStore = useAppStore()
+const productsStore = useProductsStore()
 
 const props = defineProps({
   id: String
 })
 
-const fetchData = async () => {
-  isLoading.value = true
-
-  try {
-    const response = await fetchProduct(props.id)
-    responseData.value = response.data
-  } catch (error) {
-    message.value = 'Что то пошло не так'
-  } finally {
-    isLoading.value = false
-  }
-}
-
 onMounted(() => {
-  fetchData()
+  productsStore.getProducts(props.id)
 })
 
 </script>
 
 <template>
   <div class="page">
-    <p v-if="isLoading" style="text-align: center">Зазгрука...</p>
-    <Product v-if="responseData" :product="responseData"/>
+    <p v-if="appStore.isLoading" style="text-align: center">Зазгрука...</p>
+    <Product :product="productsStore.productsState.currentProduct"/>
   </div>
 </template>
 

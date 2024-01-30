@@ -1,10 +1,13 @@
 <script setup>
 import {ref} from 'vue'
 import { useRouter } from 'vue-router'
+import {useUserStore} from "@/store/user"
 
+const userStore = useUserStore()
 const login = ref('')
 const password = ref('')
 const router = useRouter()
+
 
 const required = value => !!value || 'Поле обязательно для заполнения'
 
@@ -23,6 +26,7 @@ function auth() {
     login: login.value,
     password: password.value
   }
+  userStore.setUser(user)
   localStorage.setItem('user', JSON.stringify(user))
   router.push({name: 'main'})
 }

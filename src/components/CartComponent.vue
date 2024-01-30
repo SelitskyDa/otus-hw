@@ -1,73 +1,38 @@
 <script setup>
-import {defineEmits, onMounted, reactive} from "vue";
+import {defineEmits} from "vue";
 
-const itemsInCart = reactive([])
+import {useCartStore} from "@/store/cart"
 
 const emits = defineEmits(['buy'])
 
-function clearCart () {
-  itemsInCart.splice(0, itemsInCart.length)
-  localStorage.setItem('cart', JSON.stringify([]))
-}
-
-function removeFromCart(id) {
-  const index = itemsInCart.findIndex((item) => item.product.id === id)
-  if (index > -1) {
-    itemsInCart.splice(index, 1)
-    localStorage.setItem('cart', JSON.stringify(itemsInCart))
-  }
-}
-
-function changeQuantity(id, action) {
-  const cartItem = itemsInCart.find((item) => item.product.id === id)
-  if (cartItem) {
-    if (action === '+' && cartItem.quantity >= 0) {
-      cartItem.quantity++
-    } else if (action === '-' && cartItem.quantity > 0) {
-      cartItem.quantity--
-    }
-    if (cartItem.quantity === 0) {
-      const index = itemsInCart.indexOf(cartItem)
-      if (index > -1) {
-        itemsInCart.splice(index, 1)
-      }
-    }
-    localStorage.setItem('cart', JSON.stringify(itemsInCart))
-  }
-}
-
-onMounted(() => {
-  const localStorageCart = JSON.parse(localStorage.getItem('cart'))
-  if (localStorageCart) {
-    itemsInCart.push(...localStorageCart)
-  }
-})
+const cartStore = useCartStore()
 
 </script>
 
 <template>
   <div class="container">
-    <h2 style="text-align: center; margin: 25px" v-if="itemsInCart.length === 0">Корзина пустая</h2>
-    <div class="info" v-if="itemsInCart.length > 0">
+    <h2 style="text-align: center; margin: 25px" v-if="cartStore.cartState.inCart.length === 0">Корзина пустая</h2>
+    <div class="info" v-if="cartStore.cartState.inCart.length > 0">
       <v-btn @click="emits('buy', 'checkout')">Оформить заказ</v-btn>
-      <v-btn @click="clearCart">Очистить корзину</v-btn>
+      <v-btn @click="cartStore.clearCart">Очистить корзину</v-btn>
     </div>
+    <p style="margin: 25px">Сумма вашего заказа: {{cartStore.totalSum.toFixed(2)}}$</p>
     <div class="block">
-      <div class="card" v-for="i in itemsInCart">
-        <img v-if="i.product.image" class="image" :src="`${i.product.image}`">
+      <div class="card" v-for="i in cartStore.cartState.inCart">
+        <img v-if="i.image" class="image" :src="`${i.image}`">
         <img v-else class="image" src="@/static/html_placeholder_01.jpg">
         <div class="about">
-          <p class="title">{{i.product.title}}</p>
-          <p class="price">{{i.product.price}}$</p>
+          <p class="title">{{i.title}}</p>
+          <p class="price">{{i.price}}$</p>
         </div>
-        <p style="margin-bottom: 15px;">Сумма: {{(i.product.price * i.quantity).toFixed(2) }}$</p>
+        <p style="margin-bottom: 15px;">Сумма: {{(i.price * i.count).toFixed(2) }}$</p>
         <div class="edit">
           <div style="display: flex; gap: 15px; align-items: center">
-            <v-btn @click="changeQuantity(i.product.id, '-')">-</v-btn>
-            <p>{{i.quantity}}</p>
-            <v-btn @click="changeQuantity(i.product.id, '+')">+</v-btn>
+            <v-btn @click="cartStore.changeCount(i.id, '-')">-</v-btn>
+            <p>{{i.count}}</p>
+            <v-btn @click="cartStore.changeCount(i.id, '+')">+</v-btn>
           </div>
-          <v-btn color="red" @click="removeFromCart(i.product.id)"><v-icon color="white">mdi-delete</v-icon></v-btn>
+          <v-btn color="red" @click="cartStore.removeFromCart(i.id)"><v-icon color="white">mdi-delete</v-icon></v-btn>
         </div>
       </div>
     </div>

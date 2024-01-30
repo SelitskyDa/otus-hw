@@ -4,28 +4,17 @@ import { ref, onMounted, reactive, inject} from 'vue'
 import Products from '@/components/Products.vue'
 import AddProduct from '@/components/AddProduct.vue'
 
-import { fetchProducts } from '@/services/fetch'
+import {useAppStore} from "@/store/app"
+import {useProductsStore} from "@/store/products"
+import {useCartStore} from "@/store/cart"
 
-const isLoading = ref(false)
-const message = ref(null)
-const responseData = ref(null)
 const addMode = ref(false)
-const itemsInCart = reactive([])
 
 const search = inject('searchValue')
 
-const fetchData = async () => {
-  isLoading.value = true
-
-  try {
-    const response = await fetchProducts()
-    responseData.value = response.data
-  } catch (error) {
-    message.value = 'Что то пошло не так'
-  } finally {
-    isLoading.value = false
-  }
-}
+const appStore = useAppStore()
+const productsStore = useProductsStore()
+const cartStore = useCartStore()
 
 const snackbar = ref({
   show: false,
@@ -42,40 +31,22 @@ const addProductToCart = product => {
     alert('извините, этого товара нет в наличии(нету id)')
     return
   }
-  const newCartItem = {
-    product: product,
-    quantity: 1
-  }
-  const foundItemsInCart = itemsInCart.find(p => p.product.id === product.id)
-  if (foundItemsInCart) {
-    foundItemsInCart.quantity += 1
-  } else {
-    itemsInCart.push(newCartItem)
-  }
-  localStorage.setItem('cart', JSON.stringify(itemsInCart))
+  cartStore.addToCart(product, 1)
   showSnackbar(`Товар ${product.title} успешно добавлен в корзину`)
 }
 
 const deleteData = () => {
-  responseData.value = null
+  productsStore.clearProducts()
 }
 const addData = () => {
   addMode.value = true
 }
-const add = (form) => {
-  responseData.value.unshift(form.value)
+function add (form) {
+  productsStore.addProduct(form.value)
   addMode.value = false
 }
 onMounted(() => {
-  fetchData()
-  if (!JSON.parse(localStorage.getItem('cart'))) {
-    return
-  }
-  const localStorageCart = JSON.parse(localStorage.getItem('cart'))
-  if (localStorageCart) {
-    itemsInCart.push(...localStorageCart)
-  }
-
+  productsStore.getProducts()
 })
 </script>
 
@@ -85,15 +56,15 @@ onMounted(() => {
       {{ snackbar.text }}
     </v-snackbar>
     <div v-if="!addMode">
-      <v-btn v-if="responseData" @click="addData">добавить товар к списку</v-btn>
-      <div v-if="!responseData" style="display: flex; justify-content: center;">
-        <v-btn @click="fetchData" >
+      <v-btn v-if="productsStore.isNotEmptyProducts" @click="addData">добавить товар к списку</v-btn>
+      <div v-if="!productsStore.isNotEmptyProducts && !appStore.isLoading" style="display: flex; justify-content: center;">
+        <v-btn @click="productsStore.getProducts()" >
           Загрузить данные
         </v-btn>
       </div>
-      <p v-if="isLoading">Загрузка...</p>
-      <p v-if="message">Ошибка: {{ message }}</p>
-      <Products v-if="responseData" :products="responseData" :search="search" @deleteEvent="deleteData" @addProductToCart="addProductToCart"/>
+      <p v-if="appStore.isLoading">Загрузка...</p>
+      <p v-if="productsStore.message">Ошибка: {{ productsStore.message }}</p>
+      <Products v-if="productsStore.isNotEmptyProducts" :products="productsStore.productsState.products" :search="search" @deleteEvent="deleteData" @addProductToCart="addProductToCart"/>
     </div>
     <div v-if="addMode">
       <p>форма добавления нового товара</p>
